@@ -4,14 +4,14 @@ var cacheName = '63'
 
 
 // note that sw.js is not included in the cache list
-var cachedFiles = [
-  'index.html',
+var cachedFiles = [   
+  'index.html', 
   'manifest.json',
   'js/app.js',
   'js/framework7.min.js',
   'js/routes.js',
-  'js/idb.js',
-  'js/invoice.js',
+  'js/idb.js',     
+  'js/invoice.js',   
   'js/print.min.js',
   'css/app.css',
   'css/framework7.min.css',
