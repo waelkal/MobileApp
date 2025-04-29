@@ -655,6 +655,7 @@ routes = [
       var invparentlist = [];
       var invkeys = [];
       var custlist = [];
+   
       var dblocalversion = localStorage.getItem("CurrentDBVersion");
       idb.open('unodbmobile', dblocalversion).then(function (db) {
         var tx = db.transaction(['invoice'], 'readonly');
@@ -906,7 +907,7 @@ routes = [
         },
         {
           context: {
-            stocklist: InvoiceData.stklist,
+            stockliststocklist: InvoiceData.stklist,
             customerlist: InvoiceData.custlist,
             invtype: invoicelist[0]["inv_type"],
             replacement: isreplacement,
@@ -925,7 +926,63 @@ routes = [
     }
 
   },
+  { //https://flaviocopes.com/indexeddb/
+    path: '/outstanding/',
+    async: function (routeTo, routeFrom, resolve, reject) {
+      // Router instance
+      var router = this;
+      // App instance
+      //let InvoiceData = await PrapreInvoiceData();
+      var app = router.app;
+      var invparentlist = [];
+      var invkeys = [];
+      var custlist = [];
+         var outstanding=[];
+      var dblocalversion = localStorage.getItem("CurrentDBVersion");
+  
+      idb.open('unodbmobile', dblocalversion).then(function (db) {
+        var tx_customer = db.transaction(['customer'], 'readonly');
+        var tblcustomer = tx_customer.objectStore('customer');
+        return tblcustomer.getAll();
+      }).then(function (items) {
+        for (var cust in items) {
+          custlist.push(items[cust]);
+        }
+      });
 
+      //console.log(invkeys);
+
+      idb.open('unodbmobile', dblocalversion).then(function (db) {
+        var tx = db.transaction(['outstanding'], 'readonly');
+        var tbloutstanding = tx.objectStore('outstanding');
+        return tbloutstanding.getAll();
+      }).then(function (items) {
+        for (var k in items) {
+          //console.log("k=" + k + "invkeys[k]=" + invkeys[k]);
+          // adding PK from prev. array
+         // items[k][0]["PK_key"] = invkeys[k];
+           outstanding.push(items[k]);
+           console.log(outstanding);
+        }
+        //app.preloader.hide();
+        resolve(
+          {
+            componentUrl: './pages/outstanding.html',
+          },
+          {
+            context: {
+              invparentlist: invparentlist,
+              customerlist: custlist,
+              outstanding: outstanding,
+             
+            }
+          }
+        );
+      });
+
+    }
+
+  },
   // Default route (404 page). MUST BE THE LAST
   {
     path: '(.*)',

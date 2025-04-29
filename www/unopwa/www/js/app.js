@@ -153,6 +153,8 @@ var app  = new Framework7({
               newDB.createObjectStore('customer', { keyPath: 'customerid' });
               newDB.createObjectStore('warehouse', { keyPath: 'warehid' });
               newDB.createObjectStore('counter', { keyPath: 'type' });
+              var objectStore_outstanding = newDB.createObjectStore('outstanding', { keyPath: 'customerid' });
+              objectStore_outstanding.createIndex('customerid', 'customerid', { unique: false });
               if (localStorage.getItem('replacement') === "1") {
                 newDB.createObjectStore('stock', { keyPath: 'stkreplacebar' });
               }
@@ -215,6 +217,10 @@ var app  = new Framework7({
               dialog.setText('Groups ' + ((progress) / 10) + ' of 5');
               app.methods.getAllGroupsAndSave(db);
               // Update local database version as the online database version
+              progress += 10;
+              dialog.setProgress(progress);
+              dialog.setText('outstanding ' + ((progress) / 10) + ' of 5');
+              app.methods.getoutstanding(db);
 
 
               localStorage.setItem("CurrentDBVersion", localStorage.getItem('ServerDBVersion'));
@@ -496,6 +502,44 @@ var app  = new Framework7({
             closeTimeout: 3000,
           });
           toastBottom.open();
+        },
+        error: function (xhr, status) {
+          console.log('Error: ' + status);
+        },
+      })
+    },
+
+    getoutstanding: function (newDB) {
+      console.log("getoutstanding");
+      app.request({
+        url: 'https://unopwa.app/api/getoutstanding.php',
+        crossDomain: true,
+        async: true, // async processing
+        data: {
+          'dbhost': localStorage.getItem('Server'),
+          'dbuser': localStorage.getItem('Username'),
+          'dbpass': localStorage.getItem('Password'),
+          'dbname': localStorage.getItem('Database'),
+          'region': localStorage.getItem('region'),
+          'Scenario': localStorage.getItem('Scenario'),
+          'dbCashVanName': localStorage.getItem('CashVanName'),
+          'dbsalesmanid': localStorage.getItem('salesmanid')
+        },
+        statusCode: {
+          404: function (xhr) {
+            alert('page not found');
+          }
+        },
+        success: function (data, status, xhr) {
+          //console.log(data);
+          var JSONoutstanding = JSON.parse(data);
+          var tx_outstanding= newDB.transaction('outstanding', 'readwrite');
+          for (var key in JSONoutstanding) {
+            if (JSONoutstanding.hasOwnProperty(key)) {
+              //console.log(JSONcustomer[key]["customerid"]);
+              tx_outstanding.objectStore('outstanding').put(JSONoutstanding[key]);
+            }
+          }
         },
         error: function (xhr, status) {
           console.log('Error: ' + status);

@@ -1,0 +1,203 @@
+<!--suppress ALL -->
+<template>
+  <div class="page" data-name="outstanding">
+
+    <!--Back button-->
+    <div class="navbar">
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="ios-only">Back</span>
+          </a>
+        </div>
+        <div id="lblwarehouse" tag="{{mysettings.warehid}}" class="title">{{invtype}} Wh:{{mysettings.whcode}}</div>
+      </div>
+    </div>
+
+
+    <div class="page-content">
+
+
+      <!--select customer-->
+      <div class="list no-hairlines-md">
+        <ul>
+
+
+          <!-- Add Region-->
+
+          <li>
+            <a class="item-link smart-select smart-select-init" data-close-on-select="true"
+               data-page-back-link-text="Done" data-open-in="popup" data-searchbar="true" data-searchbar-placeholder="Search">
+              <select id="cbocustomer" name="customer" onchange="getoutstanding()" >
+                
+                <option disabled selected value="nullcustomer" >Select customer</option>
+                {{#each customerlist}}
+                <option value="{{this.customerid}}">{{this.acname}}</option>
+                {{/each}}
+              </select>
+              <div class="item-content">
+                <div class="item-inner">
+                  <div class="item-title">Customer</div>
+                </div>
+              </div>
+            </a>
+          </li>
+          
+            {{#each outstanding}}
+            <li id="swipeout" style="display:none">
+              <div class="swipeout-content">
+
+
+                
+                  
+              </div>
+              
+
+
+            </li>
+            {{/each}}
+        
+
+     
+        </ul>
+      </div>
+
+      
+     
+      <div class="block block-strong">
+        <p class="row">
+          <!--@click="SaveSettings"-->
+          <a href="#" id="buttonSave" class="col button button-fill" click="btnSave(0)">Search</a>
+
+
+      </div>
+
+    </div>
+
+</template>
+<script>
+
+  var flat = 0;
+  var flng = 0;
+  var allcustomerlist = [];
+
+  function errorPosition(error) {
+    if (err.PERMISSION_DENIED === error.code) {
+
+    }
+  }
+  var btnchange = document.getElementById("cbocustomer");
+  if   (!btnchange === "nullcustomer") {
+   
+    btnchange.addEventListener("change", function (event) {
+      var currentCustomer = btnchange.value; // get selected value
+      getoutstanding(currentCustomer); // your custom function
+    });
+ 
+  };
+
+
+  var optionsPosition = {
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 0
+  };
+ 
+  function showPosition(position) {
+    flat = parseFloat(position.coords.latitude);
+    flng = parseFloat(position.coords.longitude);
+
+  }
+
+
+  return {
+    data: function () {
+      var localsettings = {
+        whcode: localStorage.getItem("whcode"),
+        warehid: localStorage.getItem("warehid"),
+        CompanyName: localStorage.getItem('CompanyName'),
+        Address: localStorage.getItem('Address'),
+        VATID: localStorage.getItem('VATID'),
+        Phones: localStorage.getItem('Phones'),
+        Email: localStorage.getItem('Email'),
+        ReportFooter: localStorage.getItem('ReportFooter'),
+      };
+      return {
+        mysettings: localsettings
+      }
+
+    },
+    methods: {
+      btnSave: function (isPrint) {
+        // Set Pending Uploads to true
+
+        if (localStorage.getItem("warehid") == null || localStorage.getItem("warehid").length != 36) {
+          app.dialog.alert("Invalid warehouse id!!");
+          return false;
+        }
+
+
+        if (localStorage.getItem("Scenario") == null) {
+          app.dialog.alert("Invalid Scenario!");
+          return false;
+        } else {
+          if (localStorage.getItem("Scenario") == 'Scenario1' && localStorage.getItem("salesmanid") == null) {
+            app.dialog.alert("Invalid salesman id for Scenario1!");
+            return false;
+          }
+        }
+
+
+        const currentCustomer = $$("#cbocustomer").val();
+        if (currentCustomer === "nullcustomer") {
+          app.dialog.alert("please select customer!!");
+          return false;
+        }
+     
+        //const currentamount = $$("#Amount").val();
+        //if ($$('#Amount').val() == '') {
+        //  app.dialog.alert("Please fill Amount field!!");
+        //  return false;
+        //}
+
+        // Create temp JV
+        var current_JV = refreshVoucherTotal(this.$route.context.invtype, currentamount);
+
+        var mainKey = current_JV[0]["inp_id"];
+
+        const isEdit = this.$route.context.isEditJV;
+        const dbPromise = idb.open('unodbmobile', localStorage.getItem('CurrentDBVersion'));
+        var retval = "";
+
+        //console.log("saving invoice when edit");
+        if (isEdit === true) {
+          const JVKey = parseFloat(this.$route.context.JVKey);
+          SaveEditedJV(JVKey, current_JV); // Sending int PK with the current invoice (parent & Details)
+        } else {
+          // For Add new invoice
+          
+        }
+
+      },
+     
+
+     
+    },
+    
+    on: {
+ 
+
+   
+      pageReinit: function (page) {
+        //console.log("pageReinit: assignCube");
+        //assignCubeButtons(this.$route.context.cubelist);
+        //document.getElementById("cubebutton").onclick = assignCubeButtons(this.$route.context.cubelist);
+
+        //document.getElementById("groupbutton").onclick = assignGroupButtons(this.$route.context.maingroups);
+      }
+    },
+  }
+
+  
+</script>

@@ -1054,8 +1054,11 @@ function addItem() {
 
 function btnUpdate() {
   //console.log("btnUpdate invline = " + invline);
+ 
   var stkbar = $$("#selectedItem").val();
-  var item = document.getElementById("selectedItem").options[document.getElementById("selectedItem").selectedIndex].text;
+  var stk = document.getElementById("selectedItem").options[document.getElementById("selectedItem").selectedIndex].text
+  var s = stk.indexOf("||")
+  var item = stk.substring(0, s);
   var cost = parseFloat(document.getElementById("selectedItem").options[document.getElementById("selectedItem").selectedIndex].getAttribute("data-cc"));
   var vat = parseFloat(document.getElementById("selectedItem").options[document.getElementById("selectedItem").selectedIndex].getAttribute("data-stk_vat"));
   if (isNaN(cost) === true) {
@@ -1958,6 +1961,38 @@ function SaveEditedJV(invoiceKey, current_JV) {
   });
 
 }
+async function getoutstanding() {
+
+  var dblocalversion = localStorage.getItem("CurrentDBVersion");
+  let db = await idb.open('unodbmobile', dblocalversion);
+  var customerid = $$("#cbocustomer").val();
+ 
+    const div = document.createElement('div'); // Create a <div> element
+  div.id = 'myDiv';
+   
+  //Opening Customer table using await/Sync
+  let tx_outstanding = db.transaction(['outstanding'], 'readonly');
+  let objStore_outstanding = tx_outstanding.objectStore('outstanding');
+  let lstoutstanding = await objStore_outstanding.index('customerid');
+ 
+  let results = await lstoutstanding.getAll(customerid);
+  for (let item of results) {
+    //$$("#thirdpartyacc").val(item.thirdpartyacc);
+    //$$("#gtotal").val(item.gtotal);
+    div.innerHTML  = `
+    <div class="thirdpartyacc">acc: ${item.thirdpartyacc}</div>
+    <div class="gtotal">Ammount: ${item.gtotal}</div>
+ <div class="chip"> <input type="checkbox" id="" name="" value=""> </div>
+  ` + div.innerHTML;
+    document.getElementById('swipeout').appendChild(div);
+  }
+  document.getElementById('swipeout').style.display = 'block';
+   
+  console.log(lstoutstanding);
+   
+}
+
+
 
 
 function AddCustomer(NameOfCustomer, BusAdr, BusMob, BusPhn, region) {
@@ -2295,6 +2330,30 @@ function updatedamagestock(data, key) {
     return tx.complete;
   });
 }
+
+
+function outstandingbyclient(inv_type, Amount) {
+  var $$ = Dom7;
+  var receiptvoucher = [];
+  var voucher_total = 0;
+
+  var trp_desc = $$("#txtInvoiceDescription").val();
+  var customer_id = $$("#cbocustomer").val();
+  var customer_name = document.getElementById("cbocustomer").options[document.getElementById("cbocustomer").selectedIndex].text;
+  var salesmanid = localStorage.getItem("salesmanid");
+  var locationid = localStorage.getItem("locationid");
+  var locationcode = localStorage.getItem("locationcode");
+  var Scenario = localStorage.getItem("Scenario");
+  var trans_pid = app.utils.id('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx');
+  // adding parent receipt voucher data
+  if (Amount != 0) {
+    voucher_total = Amount;
+    receiptvoucher.push(new receipt_parent_line(trans_pid, inv_type, voucher_total, customer_id, customer_name, trp_desc, salesmanid, locationid, locationcode));
+  }
+  voucher_total = 0;
+  return receiptvoucher;
+}
+
 //function getstockfrominvoice(current_inv) {
 //  var stock = [];
 //  for (var i+1 in current_inv) {

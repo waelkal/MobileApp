@@ -1,21 +1,21 @@
-//var cacheName = '10651';
-var cacheName = '63'
+   //var cacheName = '10651';
+var cacheName = '63' 
 //self.localStorage.setItem("AppVersion", cacheName);
-
+   
 
 // note that sw.js is not included in the cache list
-var cachedFiles = [   
+var cachedFiles = [
   'index.html', 
   'manifest.json',
   'js/app.js',
-  'js/framework7.min.js',
+  'js/framework7.min.js', 
   'js/routes.js',
-  'js/idb.js',     
-  'js/invoice.js',   
+  'js/idb.js', 
+  'js/invoice.js',
   'js/print.min.js',
-  'css/app.css',
+  'css/app.css', 
   'css/framework7.min.css',
-  'css/icons.css',
+  'css/icons.css', 
   'css/print.min.css',
   'fonts/Framework7Icons-Regular.eot',
   'fonts/Framework7Icons-Regular.ttf',
@@ -86,7 +86,7 @@ self.addEventListener('activate', function(evt){
         }
       }));
     })
-  );
+  ); 
   return self.clients.claim(); // to claim all the pages
 });
 

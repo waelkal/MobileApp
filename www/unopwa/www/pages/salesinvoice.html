@@ -212,7 +212,7 @@
                         {{/each}}
                         {{else}}
                         {{#each stocklist}}
-                        <option value="{{this.stkbar}}" data-description="" data-stk_origin="{{this.stk_origin}}" data-stk_vat="{{this.stk_vat}}" qty="{{this.qun_onhand}}" data-cc="{{this.stkbar_cost}}" data-stkbar_id="{{this.stkbar_id}}" tag="{{this.stkbar_price}}">{{this.stkbar_name}} || Qty: {{this.qun_onhand}}</option>
+                        <option value="{{this.stkbar}}" data-description="" data-stk_origin="{{this.stk_origin}}" data-stk_vat="{{this.stk_vat}}" qty="{{this.qun_onhand}}" data-cc="{{this.stkbar_cost}}" data-stkbar_id="{{this.stkbar_id}}" tag="{{this.stkbar_price}}">{{this.stkbar_name}}||Qun:{{this.qun_onhand}} </option>
                         {{/each}}
                         {{/if}}
                       </select>
@@ -269,7 +269,7 @@
             <div class="item-content item-input">
               <div class="item-inner">
                 <div class="item-input-wrap">
-                  <label for="cash">Is invoice cash?</label>
+                  <label for="cash">Is invoice cash ? </label>
                   <input type="checkbox" id="cash" name="cash" value="off">
                   <input type="text" id="txtInvoiceDescription" placeholder="Description" value="" />
                 </div>
