@@ -142,7 +142,7 @@ var app  = new Framework7({
   methods: {
     NewDatabase: function () {
       //console.log("New database");
-
+ 
       // Deleting unodbmobile the current local database
       // localStorage.getItem('CurrentDBVersion') must equal 1
       //https://github.com/jakearchibald/idb

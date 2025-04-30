@@ -1978,7 +1978,7 @@ async function getoutstanding() {
   let results = await lstoutstanding.getAll(customerid);
   for (let item of results) {
     //$$("#thirdpartyacc").val(item.thirdpartyacc);
-    //$$("#gtotal").val(item.gtotal);
+    //$$("#gtotal").val(item.gtotal); 
     div.innerHTML  = `
     <div class="thirdpartyacc">acc: ${item.thirdpartyacc}</div>
     <div class="gtotal">Ammount: ${item.gtotal}</div>
