@@ -115,12 +115,12 @@
             </div>
           </li>
 
-          <!-- Add Region-->
-
+     <!-- Add Region-->
+        
           <li>
             <a class="item-link smart-select smart-select-init" data-close-on-select="true"
                data-page-back-link-text="Done" data-open-in="popup" data-searchbar="true" data-searchbar-placeholder="Search">
-              <select id="cbocustomer" name="customer">
+              <select id="cbocustomer" name="customer" >
                 <option disabled selected value="nullcustomer">Select customer</option>
                 {{#each customerlist}}
                 <option value="{{this.customerid}}">{{this.acname}}</option>
@@ -138,19 +138,30 @@
 
       <div class="data-table data-table-init card">
         <!--<div class="card-header">
-        </div>-->
+  </div>-->
         <div class="list">
           <ul>
-
+           
             <li class="item-content item-input">
               <div class="item-inner">
                 <div class="item-input-wrap">
                   <!--<p>Customer balance LL :<input type="text" id="Amount" value="" readonly="readonly"> </p>-->
-                  <p>Amount USD :<input type="text" id="Amount" value="0"> </p>
+                  <p>
+                    Amount USD :<input type="text" id="Amount" value="0">
+                    Amount LBP :<input type="text" id="AmountLBP" value="0">
+                  </p>
+
                 </div>
               </div>
-            </li>
+              <a href="#" @click="goToOutstanding" class="panel-close">
+                <i class="f7-icons size-22 color-blue">eye_fill</i>
+                <div class="item-inner">
+                  <div class="item-title">Outstanding</div>
+                </div>
+              </a>
 
+            </li>
+            
           </ul>
         </div>
 
@@ -165,7 +176,7 @@
           </p>
 
         </div>
-
+    
         <div id="JVPOS" style="display:none" BORDER=0 CELLSPACING=0 CELLPADDING=0>
           <h3> {{mysettings.CompanyName}} </h3>
           <h4>
@@ -182,16 +193,16 @@
             <input type="text" id="Phone" /><br />
           </h4>
           <h3>NetTotal USD:<input type="text" id="amount" value="amount" /></h3>
-          <table id="invoiceTable" style="text-align:center;" align="center">
-            <tr>
-              <td style="text-align:right;"></td>
-            </tr>
-            <tr>
-              <td><hr></td>
-            </tr>
-          </table>
-          <p>{{mysettings.ReportFooter}}</p>
-        </div><!--End Invoice <td style="text-align:center;"><h4>Price</h4></td> -->
+            <table id="invoiceTable" style="text-align:center;" align="center">
+              <tr>
+                <td style="text-align:right;"></td>
+              </tr>
+              <tr>
+                <td><hr></td>
+              </tr>
+            </table>
+            <p>{{mysettings.ReportFooter}}</p>
+</div><!--End Invoice <td style="text-align:center;"><h4>Price</h4></td> -->
       </div>
 
       <!--<div class="list search-list searchbar-found">
@@ -200,69 +211,40 @@
           <li id="{{this.PK_key}}" class="swipeout">
             <div class="swipeout-content">
               <!--<a href="/customerview/{{js 'return JSON.stringify(this)'}}" class="item-link item-content">-->
-      <!--<a href="#" @click="customerview('{{this}}')" class="item-link item-content">-->
-      <a href="/editsalesinvoice/{{this.PK_key}}/" class="item-link item-content">
-        <div class="item-inner">
-          <div class="item-title">
-            <span class="badge color-green">{{this.PK_key}}</span> {{this.inv_edate}}
-            <!-- Item header, must be first child of item-title -->
-            {{this.client_name}}
-            <!-- Item footer, must be last child of item-title -->
-            <div class="item-footer">
-              <div class="chip">
-                <div class="chip-label">{{this.inv_type}}</div>
-              </div>
+              <!--<a href="#" @click="customerview('{{this}}')" class="item-link item-content">-->
+              <a href="/editsalesinvoice/{{this.PK_key}}/" class="item-link item-content">
+                <div class="item-inner">
+                  <div class="item-title">
+                    <span class="badge color-green">{{this.PK_key}}</span> {{this.inv_edate}}
+                    <!-- Item header, must be first child of item-title -->
+                    {{this.client_name}}
+                    <!-- Item footer, must be last child of item-title -->
+                    <div class="item-footer">
+                      <div class="chip">
+                        <div class="chip-label">{{this.inv_type}}</div>
+                      </div>
 
-              {{#if this.IsUploaded}}
-              <span class="badge color-blue">online</span>
-              {{else}}
-              <span class="badge color-red">offline</span>
-              {{/if}}
+                      {{#if this.IsUploaded}}
+                      <span class="badge color-blue">online</span>
+                      {{else}}
+                      <span class="badge color-red">offline</span>
+                      {{/if}}
+                    </div>
+                  </div>
+                </div>
+              </a>
             </div>
-          </div>
-        </div>
-      </a>
+
+
+          </li>
+          {{/each}}
+        </ul>
+      </div>-->
+
+
+
+
     </div>
-
-
-    </li>
-    {{/each}}
-    </ul>
-  </div>-->
-
-
-
-
-  </div>
-  <div class="card-content">
-    <table id="InvoiceTable">
-      <thead>
-        <tr>
-          <th class="label-cell">Item</th>
-          <th class="numeric-cell">Qty</th>
-          <th class="numeric-cell">Price</th>
-          <th class="numeric-cell">Disc%</th>
-          <th class="numeric-cell">Total</th>
-        </tr>
-      </thead>
-      <tbody id="tblbody">
-        <!-- <tr id="row1">
-          <td class="label-cell">MIRROR DOOR</td>
-          <td class="numeric-cell">5</td>
-          <td class="numeric-cell">3</td>
-          <td class="numeric-cell">15</td>
-          <td class="actions-cell">
-            <a class="link icon-only">
-              <i class="icon f7-icons ios-only color-red" @click="btnRemove('#row1')">trash</i>
-              <i class="icon material-icons md-only color-red" @click="btnRemove('#row1')">delete</i>
-            </a>
-          </td>
-        </tr>-->
-
-
-      </tbody>
-    </table>
-  </div>
 </template>
 <script>
 
@@ -372,12 +354,13 @@
 
       },
       btnPrint: function () {
+
         var current_JV = receipt_parent_line(this.$route.context.invtype);
         const JVKey = parseFloat(this.$route.context.invoiceKey);
         printJV(JVKey, current_JV);
         $$("#buttonPrint").remove(); // remove print so that we don't have multiple rows
       },
-      btnRefresh: function () {       
+      btnRefresh: function () {
         var Amount = 0;
         var invparentlist = this.$route.context.invparentlist;
         var customer_id = $$("#cbocustomer").val();
@@ -385,12 +368,35 @@
           Amount = getcustomerbalance(customer_id, invparentlist);
 
           $$("#Amount").val(Amount);
-        
+
           //document.getElementById("txtPrice").value = Amount.toString;
-        } 
-       
+        }
+
+      },
+       goToOutstanding: function () {
+        debugger;
+        const currentamount = $$("#Amount").val();
+        const currentamountLBP = $$("#AmountLBP").val();
+        const select = document.getElementById("cbocustomer");
+        const selectedOption = select.options[select.selectedIndex];
+        localStorage.setItem('amount', currentamount);
+        localStorage.setItem('amountLBP', currentamountLBP);
+        const customerId = select.value;
+
+
+        if (customerId === "nullcustomer") {
+          app.dialog.alert("Please select a customer.");
+          return;
+        }
+
+        app.router.navigate(`/outstanding/${customerId}`);
       }
-    },
+   
+   
+  },
+
+  
+
     
     on: {
       // each object key means same name event handler

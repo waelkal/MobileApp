@@ -1,8 +1,8 @@
  <!DOCTYPE html>
 <html>
-<head>          
-  <meta charset="utf-8">             
-  <!--  
+<head>
+  <meta charset="utf-8">
+  <!--
   Customize this policy to fit your own app's needs. For more guidance, see:
       https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
   Some notes:
@@ -43,7 +43,7 @@
   <link rel="apple-touch-startup-image" href="apple-splash-1536.png" media="(min-device-width: 768px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait)">
   <link rel="apple-touch-startup-image" href="apple-splash-1668.png" media="(min-device-width: 834px) and (max-device-width: 834px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait)">
   <link rel="apple-touch-startup-image" href="apple-splash-2048.png" media="(min-device-width: 1024px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait)">
-
+ 
 
 </head>
 <body>
@@ -321,113 +321,80 @@
                 </button>
                 view Vouchers list
               </div>
-        
-                <div class="col-50 colMenu">
-                  <button onclick="OpenStatment()" class="col button button-big2 button-raised">
-                    <i class="f7-icons size-25">home_fill</i>  Statment Of Account
-                  </button>
-                  Statment Of Account
-                </div>
               
+              <div id="outstandingSection" class="col-50 colMenu"   >
+                <button onclick="OpenStatment()" class="col button button-big2 button-raised">
+                  <i class="f7-icons size-25">home_fill</i>  OutStanding
+                </button>
+                OutStanding
+              </div>
             </div>
-           
-
+               
+              
           </div>
           </div>
       </div>
-
       <!-- Catalog View -->
       <div id="view-catalog" class="view tab">
         <!-- Catalog page will be loaded here dynamically from /catalog/ route -->
       </div>
-
       <!-- Settings View -->
       <div id="view-settings" class="view tab">
         <!-- Settings page will be loaded here dynamically from /settings/ route -->
       </div>
     </div>
-
     <!-- Popup -->
-
-
     <!-- Login Screen -->
-
   </div>
-
-
   <!-- Framework7 library -->
   <script src="js/framework7.min.js"></script>
-
   <!-- App routes -->
   <script src="js/routes.js"></script>
-
   <!-- indexDB promise lib https://github.com/jakearchibald/idb-->
   <script src="js/idb.js"></script>
-
-
   <!-- Your custom app scripts -->
   <script src="js/app.js"></script>
-
   <script src="js/invoice.js"></script>
-
   <script src="js/print.min.js"></script>
-
   <script>
     var $$ = Dom7;
-
-
     function newInvoice() {
         homeView.router.navigate('/salesinvoice/');
     };
-
-
     function newDamageInvoice() {
       homeView.router.navigate('/Damageinvoice/');
     };
-
     function newReceiptVoucher() {
       homeView.router.navigate('/ReceiptVoucher/');
     };
-
     function newOrder() {
         homeView.router.navigate('/orderinvoice/');
     };
-
     function salesreturn() {
         homeView.router.navigate('/returninvoice/');
     };
-
     function stockList() {
         //app.views.current.router.navigate('/stocklist/');
         homeView.router.navigate('/stocklist/');
     };
-
     function stocksearch() {
       //app.views.current.router.navigate('/stocklist/');
       homeView.router.navigate('/stocksearch/');
     };
-
     function Damagelist() {
       //app.views.current.router.navigate('/stocklist/');
       homeView.router.navigate('/Damagelist/');
     };
-
-
     function VouchersList() {
       //app.views.current.router.navigate('/stocklist/');
       homeView.router.navigate('/VouchersList/');
     };
-
     function invoiceList() {
       homeView.router.navigate('/invoiceList/');
     };
-
     function stockCube() {
       homeView.router.navigate('/stockcube/');
     };
-
-
-
     function openCustomerlist() {
       //app.views.main.router.navigate('/customerlist/');
       app.views.current.router.navigate('/customerlist/');
@@ -438,20 +405,14 @@
       //console.log(app.views.current.router.currentRoute);
       //app.views.current.router.navigate('/warehouselist/');
       homeView.router.navigate('/warehouselist/');
-   
     };
     function OpenStatment() {
       homeView.router.navigate('/outstanding/');
     };
-
     async function UpdateDatabase() {
       //bIsOffline = await IsInvoiceOffline();
       //console.log(bIsOffline);
-
-    
-
       if (localStorage.getItem('PendingUploads') === "0") {
-
           app.dialog.confirm('You current database will be overwritten! Are you sure?', function () {
               app.methods.NewDatabase();
           });
@@ -459,29 +420,31 @@
         app.dialog.alert("Please upload your data!!. Pending upload exists!!");
       }
     }
-
     function RefreshApp() {
         window.location.reload();
     }
-
     function CreateCustomer() {
       homeView.router.navigate('/createcustomer/');
     }
-
     function CheckInOut() {
       homeView.router.navigate('/CheckInOut/');
     }
-
+    if (localStorage.getItem("ShowOutstanding") === "true") {
+      $$('#outstandingSection').show();
+    } else {
+      $$('#outstandingSection').hide();
+    }
+ 
     document.addEventListener("DOMContentLoaded", function(event) {
-        $$("#CacheVersion").text(localStorage.getItem("CacheVersion"));
+      $$("#CacheVersion").text(localStorage.getItem("CacheVersion"));
+ 
     });
-
 
     // Sync Data
     async function UploadData() {
       let invoice = [];
       let invoiceList = await getInvoiceList();
-      app.dialog.alert("Upload your offline invoices !!... "); 
+      app.dialog.alert("Upload your offline invoices !!... ");
         if (localStorage.getItem("UpdateDataToOnlineServer") === "1") {
           for (var inv in invoiceList) {
             if (invoiceList[inv]["IsUploaded"] === false) {
@@ -490,17 +453,14 @@
               let lst_edit_invoice = await getInvoice(invID);
               for (var inv in lst_edit_invoice) {
                 invoice.push(lst_edit_invoice[inv]);
-
               }
               //console.log(invoice);
               SaveEditedInvoice(invID, invoice)
               invoice = [] ;
-
             }
           }
-        }        
+        }
     }
-
     async function checkoffline() {
       const invoice = [];
       var isOffline = false;
@@ -508,21 +468,13 @@
       for (var inv in invoiceList) {
         if (invoiceList[inv]["IsUploaded"] === false) {
           isOffline = true;
-
         }
       }
       return isOffline
     }
-
   </script>
-
-
-
   <script async defer
           src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPlc7h1dWlFpst6z7-dlomP4CRdgrevwc">
   </script>
-
-
-
 </body>
 </html>

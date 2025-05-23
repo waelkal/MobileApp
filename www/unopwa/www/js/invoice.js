@@ -34,6 +34,7 @@ function invoice_line(inv_id, rowid, item, stkbar, stkbar_id, qty, price, cost, 
   this.stkbar_id = stkbar_id;
   this.total = total;
   this.inc_vat = vat;
+ 
 
 }
 
@@ -319,6 +320,113 @@ function UpdateLocalDataJV(data, keyid) {
     return tx.complete;
   });
 }
+
+
+//function UpdateLocalDataoutstandig(data, keyid) {
+//  // Saving data to local database first
+//  //const dbPromise = idb.open('unodbmobile', localStorage.getItem('CurrentDBVersion'));
+//  //dbPromise.then(db => {
+//  //  const tx = db.transaction('outstanding', 'readwrite');
+//  //  tx.objectStore('outstanding').update(data, keyid);
+//  //  return tx.complete;
+//  //}); 
+//  const dbPromise = idb.open('unodbmobile', localStorage.getItem('CurrentDBVersion')); // Open the database
+
+//  dbPromise.then((db) => {
+//    const tx = db.transaction('outstanding', 'readwrite'); // Create a transaction in 'readwrite' mode
+//    const store = tx.objectStore('outstanding'); // Access the 'outstanding' object store
+
+
+//    const keyToUpdate = parseFloat(keyid); // Replace this with the actual key
+//    const updatedData = data[1]; // Replace this with the desired data to update
+//    // Retrieve the current object
+//    console.log(store.get(keyToUpdate));
+//    store.get(keyToUpdate).onsuccess = function (event) {
+//      const existingData = event.target.result;
+
+//      if (existingData) {
+//        // Merge updated fields into existing object
+//        Object.assign(existingData, updatedField);
+
+//        // Update the object in the store
+//        store.put(existingData).onsuccess = function () {
+//          console.log('Value successfully updated in outstanding!');
+//        };
+//      } else {
+//        console.error('Key not found:', keyToUpdate);
+//      }
+//    };
+//  }).catch((err) => {
+//    console.error('Database error:', err);
+//  });
+//}
+
+//function UpdateLocalDataoutstandig(data, keyid) {
+//  const dbPromise = idb.open('unodbmobile', localStorage.getItem('CurrentDBVersion'));
+//  dbPromise.then(db => {
+//    const tx = db.transaction('outstanding', 'readwrite');
+//    data.id = keyid; // assuming keyPath is 'id'
+//    tx.objectStore('outstanding').put(data);
+//    return tx;
+//  });
+//}
+function UpdateLocalDataoutstandig(dataUpdates, keyid) {
+  const dbPromise = indexedDB.open('unodbmobile', localStorage.getItem('CurrentDBVersion')); // Make sure version is correct
+
+  dbPromise.onsuccess = function (event) {
+    const db = event.target.result;
+    const tx = db.transaction('outstanding', 'readwrite');
+
+    console.log('Transaction stores:', tx.objectStoreNames);
+
+    const store = tx.objectStore('outstanding');
+
+    // Assuming dataUpdates[0] contains the update data
+    const updatedData = dataUpdates[1];
+    const updatedsalesman = dataUpdates[4];
+    const updatedpay = dataUpdates[5];
+
+    const request = store.get(keyid); // Assuming you're fetching by keyid
+   
+    request.onsuccess = function () {
+      if (request.result) {
+        console.log('Record found:', request.result);
+        console.log('alreadypaid before checking:', request.result["alreadypaid"]);
+        // Ensure that the 'alreadypaid' property exists and is an object
+       
+          // Update the 'alreadypaid' property
+        request.result["alreadypaid"] = updatedData  ;
+        request.result["salesmanid"] = updatedsalesman;
+        request.result["pay"] = updatedpay;
+
+          // Now use the updated result to store it back
+        const updateRequest = store.put(request.result );
+
+          updateRequest.onsuccess = function () {
+            console.log('Record successfully updated.');
+          };
+
+          updateRequest.onerror = function () {
+            console.error('Failed to update record:', updateRequest.error);
+          };
+       
+      } else {
+        console.warn('No record found for key:', keyid);
+      }
+    };
+
+    request.onerror = function () {
+      console.error('Failed to fetch record:', request.error);
+    };
+  };
+
+  dbPromise.onerror = function () {
+    console.error('Failed to open database:', dbPromise.error);
+  };
+
+
+}
+
 //function UpdatestockvalueLocalData(data, keyid) {
   // Saving data to local database first
   //const dbPromise = idb.open('unodbmobile', localStorage.getItem('CurrentDBVersion'));
@@ -328,6 +436,8 @@ function UpdateLocalDataJV(data, keyid) {
     //return tx.complete;
   //});
 ///}
+
+
 
  
 async function generateJV(mainId, current_JV) {
@@ -601,6 +711,48 @@ async function generatestock(stocklist) {
 
 
 }
+async function printReceiptOutstanding(mainId, current_inv) {
+
+  await generateoutstanding(mainId, current_inv);
+
+  $$('#outstanding').css('display', 'block');
+  printJS('outstanding', 'html');
+  $$('#outstanding').css('display', 'none');
+  //window.location.reload();
+  // need to remove add rows in case
+
+}
+
+ 
+async function generateoutstanding(mainId, current_inv) {
+  var table2 = document.getElementById("InvoiceTable");
+  var table = document.getElementById("outstandingTable");
+  //var date = document.getElementById("Print_Date");
+  var starting_row = 1;
+
+  for (i = 1; i < current_inv.length; i++) {
+    if (current_inv.includes(table2)) {
+      var inv_detail = table2;
+      console.log(inv_detail);
+      var row = table.insertRow(starting_row);
+      var colinvoicecode = row.insertCell(0);
+      var colammount = row.insertCell(1);
+      var colalreadypaid = row.insertCell(2);
+      var colnewpaymend = row.insertCell(3);
+
+      colinvoicecode.innerHTML = "<small>" + inv_detail["invoicecode"] + "</small>";
+
+      colammount.innerHTML = "<small>" + inv_detail["ammount"] + "</small>";
+      colammount.className = 'tb_invoice_center';
+      colalreadypaid.innerHTML = "<small>" + inv_detail["alreadypaid"] + "</small>";
+      colalreadypaid.className = 'tb_invoice_center';
+      colnewpaymend.innerHTML = "<small>" + inv_detail["total"] + "</small>";
+      colnewpaymend.className = 'tb_invoice_center';
+      starting_row++;
+    }
+  }
+}
+ 
 
 async function printInvoice(mainId, current_inv) {
 
@@ -1055,7 +1207,7 @@ function addItem() {
 function btnUpdate() {
   //console.log("btnUpdate invline = " + invline);
  
-  var stkbar = $$("#selectedItem").val();
+   var stkbar = $$("#selectedItem").val();
   var stk = document.getElementById("selectedItem").options[document.getElementById("selectedItem").selectedIndex].text
   var s = stk.indexOf("||")
   var item = stk.substring(0, s);
@@ -1881,6 +2033,8 @@ async function getInvoice(InvoiceId) {
 
 
 
+ 
+
 
 async function getJV(JVId) {
   var dblocalversion = localStorage.getItem("CurrentDBVersion");
@@ -1965,35 +2119,138 @@ async function getoutstanding() {
 
   var dblocalversion = localStorage.getItem("CurrentDBVersion");
   let db = await idb.open('unodbmobile', dblocalversion);
-  var customerid = $$("#cbocustomer").val();
+  var acnbr = $$("#cbocustomer").val();
+  const container = document.getElementById('swipeout');
+  const found = document.getElementById('myDiv');
  
-    const div = document.createElement('div'); // Create a <div> element
+  const div = document.createElement('div'); // Create a <div> element
   div.id = 'myDiv';
-   
+
   //Opening Customer table using await/Sync
   let tx_outstanding = db.transaction(['outstanding'], 'readonly');
   let objStore_outstanding = tx_outstanding.objectStore('outstanding');
   let lstoutstanding = await objStore_outstanding.index('customerid');
- 
-  let results = await lstoutstanding.getAll(customerid);
-  for (let item of results) {
-    //$$("#thirdpartyacc").val(item.thirdpartyacc);
-    //$$("#gtotal").val(item.gtotal); 
-    div.innerHTML  = `
-    <div class="thirdpartyacc">acc: ${item.thirdpartyacc}</div>
-    <div class="gtotal">Ammount: ${item.gtotal}</div>
- <div class="chip"> <input type="checkbox" id="" name="" value=""> </div>
-  ` + div.innerHTML;
-    document.getElementById('swipeout').appendChild(div);
-  }
-  document.getElementById('swipeout').style.display = 'block';
-   
-  console.log(lstoutstanding);
-   
+  let results = await lstoutstanding.getAll(acnbr);
+  const invoiceBody = document.getElementById('invoice-body');
+  invoiceBody.innerHTML = '';
+
+  results.    forEach(item => {
+    const remaining = Number(item.gtotal) - Number(item.alreadypaid);
+    const alreadypaid = Number(item.alreadypaid);
+    const gtotal = Number(item.gtotal);
+    const rowHTML = `
+        <tr>
+          <td  class="label-cell" data-label="Invoice Code" >${item.InvoiceCode}</td>
+          <td id="amount-${item.inp_id}" data-amount="${item.gtotal}"  data-label="Amount" class="numeric-cell">
+            ${gtotal.toLocaleString()}
+          </td>
+          <td data-label="Already Paid" class="numeric-cell">  ${alreadypaid.toLocaleString()}</td>
+          <td id="remaining-${item.inp_id}" value="${item.remaining}"    >
+            ${remaining.toLocaleString()}
+          </td>
+          <td data-label="New Payment" class="numeric-cell">
+            <input type="number" id="amountpaid-${item.inp_id}" value="0" class="payment-input">
+          </td>
+          <td id ="myDiv" class= "numeric-cell">  
+            <input type="checkbox" id="checkbox-${item.inp_id}" value="${item.inp_id}" data-inp_thirdparty="${item.inp_thirdparty}" data-label="Confirm" class="numeric-cell">
+            <label for="checkbox-${item.inp_id}">Confirm</label>
+          </td>
+        </tr>
+
+        <!-- Hidden inputs -->
+        <input type="hidden" id="inp_${item.inp_id}" value="${item.inp_id}">
+        <input type="hidden" id="id_${item.inp_id}" value="${item.id}">
+      `;
+    invoiceBody.innerHTML += rowHTML;
+  });
+  //for (let item of results) {
+  //  //$$("#thirdpartyacc").val(item.thirdpartyacc);
+  //  //$$("#gtotal").val(item.gtotal);
+  //  const remaining = Number(item.gtotal) - Number(item.alreadypaid);
+  //  const alreadypaid = Number(item.alreadypaid);
+  //  const gtotal = Number(item.gtotal);
+
+  //  //    div.innerHTML = `
+  //  // <div class="invoice-card">
+  //  //  <h4>Invoice: ${item.InvoiceCode}</h4>
+  //  //  <div id="amount-${item.inp_id}" data-amount= ${item.gtotal}>  <p><strong>Amount:</strong> ${gtotal.toLocaleString()}</p></div>
+  //  //  <p><strong>Already Paid:</strong> ${alreadypaid.toLocaleString()}</p>
+  //  // <div id="remaining-${item.inp_id}" value=${remaining}><p><strong>Remaining:</strong> ${remaining.toLocaleString()}</p></div>
+  //  //  <input type="hidden" id="inp_${item.inp_id}" value="${item.inp_id}">
+  //  //  <input type="hidden" id="id_${item.inp_id}" value="${item.id}">
+
+  //  //  <div class="input-group">
+  //  //    <label for="amountpaid-${item.inp_id}">New Payment:</label>
+  //  //    <input type="number" id="amountpaid-${item.inp_id}" value="0" class="payment-input">
+  //  //  </div>
+
+  //  //  <div class="checkbox-group" id ="myDiv">
+  //  //    <input type="checkbox" id="checkbox-${item.inp_id}" value="${item.inp_id}" data-inp_thirdparty="${item.inp_thirdparty}" >
+  //  //    <label for="checkbox-${item.inp_id}">Confirm Payment</label>
+  //  //  </div>
+  //  //</div>
+
+  //  //  ` + div.innerHTML;
+
+
+  //  //document.getElementById('swipeout').appendChild(div);
+  //  //document.getElementById('swipeout').style.display = 'block';
+
+
+  //}
 }
 
+ 
+ 
+  function check() {
+    var outstanding = []
+   
 
 
+    const allCheckboxes = document.querySelectorAll("#myDiv input[type='checkbox']:checked");
+    allCheckboxes.forEach(cb => {
+      if (cb.checked) {
+    
+        const inp_thirdparty = cb.dataset.inp_thirdparty;
+        const key = cb.value;
+        console.log(key);
+        // Get the corresponding amountpaid field by using thirdpartyacc to match the ID
+        const amountpaidField = document.getElementById(`amountpaid-${key}`);
+        let amountpaid = amountpaidField ? amountpaidField.value : ''; // Get the value of the amountpaid input
+        const amountDiv = document.getElementById(`amount-${key}`);
+        const amountValue = amountDiv.getAttribute("data-amount");
+        const inp_id = document.getElementById(`inp_${key}`);
+        const id = document.getElementById(`id_${key}`);
+        const remaining = document.getElementById(`remaining-${key}`);
+        const remainingText = remaining ? remaining.textContent.trim() : null;
+        amountpaid = parseFloat(amountpaid) + parseFloat( amountpaid);
+        if (amountpaid == 0) {
+          amountpaid =   Number(remainingText.replace(/,/g, '')); 
+
+        } else  if (parseFloat(amountpaid)> parseFloat(amountValue)) {
+          alert("The amountpaid you enterd is great then amount");
+          return;
+        }
+        outstanding.push(inp_thirdparty, parseFloat(amountpaid), inp_id.value, id.value, localStorage.getItem('salesmanid'), cb.checked)
+        //alert(`Account: ${thirdpartyacc}, Amount Paid: ${amountpaid},inp_id :${inp_id.value}`);
+       
+        
+      }
+      saveoutstandingOnline(outstanding);
+    
+    });
+   
+   //if (myCheckbox.checked) {
+      //  alert(amountpaid.value);
+      //} else {
+      //  alert("Checkbox is not checked.");
+      //}
+ 
+  }
+   
+
+
+ 
 
 function AddCustomer(NameOfCustomer, BusAdr, BusMob, BusPhn, region) {
   //create guid
@@ -2139,6 +2396,70 @@ function AddCheckINOut(currentCustomer, CurrentDate, actions) {
       var toastBottom = app.toast.create({
         text: 'No Connection!',
         closeTimeout: 1000,
+      });
+      toastBottom.open();
+
+    },
+
+  });
+}
+function saveoutstandingOnline(current_inv) {
+  app.request({
+    //type: 'POST', // This may cause the problem as it may be using GET!!
+    datatype: "text",
+    url: 'https://unopwa.app/api/setoutstanding.php',
+    crossDomain: true,
+    async: true, // async processing
+    data: {
+      'dbhost': localStorage.getItem('Server'),
+      'dbuser': localStorage.getItem('Username'),
+      'dbpass': localStorage.getItem('Password'),
+      'dbname': localStorage.getItem('Database'),
+      'outstanding': current_inv,
+      
+      //'dbwarehid': localStorage.getItem('warehid'),
+      //'dbdwarehid': localStorage.getItem('Dwarehid'),
+      //'dblocationcode': localStorage.getItem('locationcode'),
+    },
+    statusCode: {
+      404: function (xhr) {
+        alert('page not found');
+      }
+    },
+    success: function (data, status, xhr) {
+      // Here we can update the local data that it is upload
+      UpdateLocalDataoutstandig(current_inv, current_inv[3])
+      console.log("Save Outstanding data:" + data);
+      console.log("Save Outstanding status:" + status);
+      if (data === "1") { // it means the server transaction is working ok
+        // Then upload the local database
+        var parent_inv_data = current_inv[3];
+        parent_inv_data['IsUploaded'] = true;
+        var toastBottom = app.toast.create({
+          text: 'Outstanding Uploaded Online',
+          closeTimeout: 1000,
+        });
+        toastBottom.open();
+     
+        localStorage.setItem("PendingUploads", "0");
+      } else {
+        var toastBottom = app.toast.create({
+          text: data,
+           
+          closeTimeout: 2000,
+        });
+        toastBottom.open();
+      }
+      return data;
+
+
+    },
+    error: function (xhr, status) {
+      console.log('saveDataOnline Error: ' + status);
+      var toastBottom = app.toast.create({
+        text: 'No Connection!',
+        closeTimeout: 1000,
+    
       });
       toastBottom.open();
 

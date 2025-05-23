@@ -29,10 +29,10 @@
           <li>
             <a class="item-link smart-select smart-select-init" data-close-on-select="true"
                data-page-back-link-text="Done" data-open-in="popup" data-searchbar="true" data-searchbar-placeholder="Search">
-              <select id="cbocustomer" name="customer" onchange="getoutstanding()" >
-                
-                <option disabled selected value="nullcustomer" >Select customer</option>
-                {{#each customerlist}}
+              <select id="cbocustomer" name="customer" onchange="getoutstanding()">
+
+                <option disabled selected value="nullcustomer">Select customer</option>
+                {{#each this.customerlist}}
                 <option value="{{this.customerid}}">{{this.acname}}</option>
                 {{/each}}
               </select>
@@ -43,32 +43,76 @@
               </div>
             </a>
           </li>
-          
-            {{#each outstanding}}
-            <li id="swipeout" style="display:none">
-              <div class="swipeout-content">
+          <li class="amount-row">
+            <label>Amount LL</label>
+            <input type="number"  id="amountlbp"/>
+            <label>Amount USD</label>
+            <input type="number" id="amountusd" />
+          </li>
 
 
-                
-                  
-              </div>
-              
+          {{#each outstanding}}
+          <li id="swipeout" style="display:none">
+            <div class="swipeout-content">
 
 
-            </li>
-            {{/each}}
-        
 
-     
+            </div>
+
+
+
+          </li>
+
+          {{/each}}
+
+
+
         </ul>
       </div>
+      <div class="data-table data-table-init card">
 
-      
+        <div class="card-content">
+          <table id="InvoiceTable">
+
+            <thead>
+              <tr>
+                <th style="text-align:left; width: 20%;">Invoice Code</th>
+                <th style="text-align:left; width: 20%;">Amount</th>
+                <th style="text-align:left; width: 20%;">Already Paid</th>
+                <th style="text-align:left; width:20%;">Remaining</th>
+                <th style="text-align:left; width: 20%;">New Payment</th>
+                <th style="text-align:left; width: 20%;">Confirm</th>
+              </tr>
+            </thead>
+            <tbody id="invoice-body">
+              <!-- Invoice rows go here -->
+            </tbody>
+          </table>
+
+
+
+
+        </div>
+
+      </div>
+      <div id="outstanding" style="display:none" BORDER=0 CELLSPACING=0 CELLPADDING=0>
+        <table id="outstandingTable" BORDER=0 CELLSPACING=0 CELLPADDING=0>
+
+
+          <tr>
+            <th style="text-align:left; width: 20%;">Invoice Code</th>
+            <th style="text-align:left; width: 20%;">Amount</th>
+            <th style="text-align:left; width: 20%;">Already Paid</th>
+            <th style="text-align:left; width:20%;">Remaining</th>
+            <th style="text-align:left; width: 20%;">New Payment</th>
      
+        </table>
+        </div>
+    
       <div class="block block-strong">
         <p class="row">
           <!--@click="SaveSettings"-->
-          <a href="#" id="buttonSave" class="col button button-fill" click="btnSave(0)">Search</a>
+          <a href="#" id="buttonSave" class="col button button-fill" onclick="check()">Save</a>
 
 
       </div>
@@ -76,6 +120,86 @@
     </div>
 
 </template>
+<style>
+  
+    input[type="number"] {
+      width: 100%;
+      box-sizing: border-box;
+    }
+  }
+  .invoice-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    max-width: 500px;
+  }
+
+    .invoice-card h4 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #007bff;
+    }
+
+  .invoice-details {
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #333;
+  }
+
+  .form-group {
+    margin-bottom: 10px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #555;
+  }
+
+  input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 15px;
+    border: 1px solid #3498db;
+    border-radius: 6px;
+    outline: none;
+    transition: border 0.2s ease;
+    
+  }
+
+    .form-input:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+    }
+
+  .confirm-checkbox {
+    margin-top: 10px;
+  }
+
+    .confirm-checkbox label {
+      font-size: 14px;
+      color: #444;
+    }
+  .amount-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+  }
+
+    .amount-row input[type="number"] {
+      width: 100px;
+      padding: 5px;
+    }
+
+    .amount-row label {
+      white-space: nowrap;
+    }
+</style>
 <script>
 
   var flat = 0;
@@ -87,17 +211,33 @@
 
     }
   }
+  console.log(this.customerlist);
   var btnchange = document.getElementById("cbocustomer");
   if   (!btnchange === "nullcustomer") {
    
     btnchange.addEventListener("change", function (event) {
-      var currentCustomer = btnchange.value; // get selected value
-      getoutstanding(currentCustomer); // your custom function
+      var currentCustomer = btnchange.value;
+      const existingDiv = document.getElementById('myDiv');
+      if (existingDiv) {
+        existingDiv.remove();
+      }
+
+      // Clear the swipeout container
+      const swipeoutContainer = document.getElementById('swipeout');
+      if (swipeoutContainer) {
+        swipeoutContainer.innerHTML = '';
+      }
+
+      // Only get outstanding if a customer is selected
+      // get selected value
+      // your custom function
     });
+     
  
   };
 
-
+  
+  
   var optionsPosition = {
     enableHighAccuracy: true,
     timeout: 10000,
@@ -128,76 +268,58 @@
       }
 
     },
-    methods: {
-      btnSave: function (isPrint) {
-        // Set Pending Uploads to true
-
-        if (localStorage.getItem("warehid") == null || localStorage.getItem("warehid").length != 36) {
-          app.dialog.alert("Invalid warehouse id!!");
-          return false;
-        }
-
-
-        if (localStorage.getItem("Scenario") == null) {
-          app.dialog.alert("Invalid Scenario!");
-          return false;
+    on: {
+      pageMounted: function (page) {
+        debugger;
+        var $$ = Dom7;
+        const selectedCustomerId = this.$route.context.selectedCustomerId;
+        const amount = localStorage.getItem('amount');
+        const amountLBP = localStorage.getItem('amountLBP');
+        const $page = $$(this.el || document);
+       
+        const $select = $page.find('#cbocustomer');
+        if ($select.length) {
+          $select.val(selectedCustomerId).trigger('change');
+          $$("#amountusd").val(amount);
+          $$("#amountlbp").val(amountLBP);
+          localStorage.removeItem('amount');
+          localStorage.removeItem('amountLBP');
         } else {
-          if (localStorage.getItem("Scenario") == 'Scenario1' && localStorage.getItem("salesmanid") == null) {
-            app.dialog.alert("Invalid salesman id for Scenario1!");
-            return false;
+          console.warn('#cbocustomer not found');
+        }
+       
+      },
+      pageInit: function (page) {
+        debugger; 
+        if (this.$route.context.selectedCustomerId) {
+          var selectedCustomerId = this.$route.context.selectedCustomerId;
+
+           
+          const $select = $$(page.el).find('#cbocustomer');
+          if (!$select.length) {
+            console.warn('#cbocustomer not found in page DOM');
+            return;
           }
-        }
+          const optionExists = $select.find(`option[value="${selectedCustomerId}"]`).length > 0;
+          console.log('Option exists for selectedCustomerId:', optionExists);
+          console.log('cbocustomer found:', $select.length, 'selectedCustomerId:', selectedCustomerId);
+          if (optionExists) {
+            $select.val(selectedCustomerId);
+            $$("#cbocustomer").change();
 
-
-        const currentCustomer = $$("#cbocustomer").val();
-        if (currentCustomer === "nullcustomer") {
-          app.dialog.alert("please select customer!!");
-          return false;
-        }
-     
-        //const currentamount = $$("#Amount").val();
-        //if ($$('#Amount').val() == '') {
-        //  app.dialog.alert("Please fill Amount field!!");
-        //  return false;
-        //}
-
-        // Create temp JV
-        var current_JV = refreshVoucherTotal(this.$route.context.invtype, currentamount);
-
-        var mainKey = current_JV[0]["inp_id"];
-
-        const isEdit = this.$route.context.isEditJV;
-        const dbPromise = idb.open('unodbmobile', localStorage.getItem('CurrentDBVersion'));
-        var retval = "";
-
-        //console.log("saving invoice when edit");
-        if (isEdit === true) {
-          const JVKey = parseFloat(this.$route.context.JVKey);
-          SaveEditedJV(JVKey, current_JV); // Sending int PK with the current invoice (parent & Details)
+          } else {
+            console.warn('No matching option found for:', selectedCustomerId);
+          }
+ 
         } else {
-          // For Add new invoice
-          
+          console.warn('selectedCustomerId not found in route context');
         }
+         
 
       },
-     
-
-     
-    },
+      
+    }
     
-    on: {
- 
-
+  } 
    
-      pageReinit: function (page) {
-        //console.log("pageReinit: assignCube");
-        //assignCubeButtons(this.$route.context.cubelist);
-        //document.getElementById("cubebutton").onclick = assignCubeButtons(this.$route.context.cubelist);
-
-        //document.getElementById("groupbutton").onclick = assignGroupButtons(this.$route.context.maingroups);
-      }
-    },
-  }
-
-  
 </script>

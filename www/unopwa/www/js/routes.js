@@ -927,7 +927,7 @@ routes = [
 
   },
   { //https://flaviocopes.com/indexeddb/
-    path: '/outstanding/',
+    path: '/outstanding/:cust',
     async: function (routeTo, routeFrom, resolve, reject) {
       // Router instance
       var router = this;
@@ -949,7 +949,7 @@ routes = [
           custlist.push(items[cust]);
         }
       });
-
+      const cust =  (routeTo.params.cust);
       //console.log(invkeys);
 
       idb.open('unodbmobile', dblocalversion).then(function (db) {
@@ -974,7 +974,7 @@ routes = [
               invparentlist: invparentlist,
               customerlist: custlist,
               outstanding: outstanding,
-             
+              selectedCustomerId: cust
             }
           }
         );

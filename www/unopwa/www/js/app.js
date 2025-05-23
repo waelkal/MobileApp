@@ -142,7 +142,7 @@ var app  = new Framework7({
   methods: {
     NewDatabase: function () {
       //console.log("New database");
- 
+
       // Deleting unodbmobile the current local database
       // localStorage.getItem('CurrentDBVersion') must equal 1
       //https://github.com/jakearchibald/idb
@@ -153,7 +153,7 @@ var app  = new Framework7({
               newDB.createObjectStore('customer', { keyPath: 'customerid' });
               newDB.createObjectStore('warehouse', { keyPath: 'warehid' });
               newDB.createObjectStore('counter', { keyPath: 'type' });
-              var objectStore_outstanding = newDB.createObjectStore('outstanding', { keyPath: 'customerid' });
+              var objectStore_outstanding= newDB.createObjectStore('outstanding', { keyPath: 'id' });
               objectStore_outstanding.createIndex('customerid', 'customerid', { unique: false });
               if (localStorage.getItem('replacement') === "1") {
                 newDB.createObjectStore('stock', { keyPath: 'stkreplacebar' });
