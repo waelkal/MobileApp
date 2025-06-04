@@ -26,7 +26,7 @@ if ($dblink->connect_errno) {
 }
 
 try {
-$strSQL = "update outstanding set alreadypaid = ".$outstanding[1]." , salesmanid=". $outstanding[4].", pay=".$outstanding[5]." where inp_id = '" .$outstanding[2] . "'  ;";      
+$strSQL = "update outstanding set alreadypaid = alreadypaid + ".$outstanding[1]." , salesmanid=". $outstanding[4].", pay=".$outstanding[5]." where inp_id = '" .$outstanding[2] . "'  ;";      
        $dblink->query($strSQL);
 
   if ($dblink->query($strSQL) === TRUE) {

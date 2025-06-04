@@ -951,11 +951,11 @@ routes = [
       });
       const cust =  (routeTo.params.cust);
       //console.log(invkeys);
-
+      
       idb.open('unodbmobile', dblocalversion).then(function (db) {
         var tx = db.transaction(['outstanding'], 'readonly');
         var tbloutstanding = tx.objectStore('outstanding');
-        return tbloutstanding.getAll();
+        return tbloutstanding.getAll(cust);
       }).then(function (items) {
         for (var k in items) {
           //console.log("k=" + k + "invkeys[k]=" + invkeys[k]);

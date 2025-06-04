@@ -56,12 +56,13 @@ function invoice_parent_line(inv_id, inv_type, client_id, client_name, descripti
   this.disc = disc;
 
 }
-function receipt_parent_line(trans_pid, inv_type, voucher_total, customer_id, customer_name, trp_desc, salesmanid, locationid, locationcode) {
+function receipt_parent_line(trans_pid, inv_type, voucher_total, voucher_totalLBP, customer_id, customer_name, trp_desc, salesmanid, locationid, locationcode) {
 
   this.inp_id = trans_pid;
   this.IsUploaded = false; // the default is not uploaded - this should be changed at save
   this.inv_type = inv_type;
   this.voucher_total = voucher_total;
+  this.voucher_totalLBP = voucher_totalLBP;
   this.client_id = customer_id;
   this.client_name = customer_name;
   this.description = trp_desc;
@@ -73,10 +74,11 @@ function receipt_parent_line(trans_pid, inv_type, voucher_total, customer_id, cu
 
 }
 
-function refreshVoucherTotal(inv_type, Amount) {
+function refreshVoucherTotal(inv_type, Amount, AmountLBP) {
   var $$ = Dom7;
   var receiptvoucher = [];
   var voucher_total = 0;
+  var voucher_totalLBP= 0;
 
   var trp_desc = $$("#txtInvoiceDescription").val();
   var customer_id = $$("#cbocustomer").val();
@@ -87,9 +89,10 @@ function refreshVoucherTotal(inv_type, Amount) {
   var Scenario = localStorage.getItem("Scenario");
   var trans_pid = app.utils.id('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx');
   // adding parent receipt voucher data
-  if (Amount != 0) {
+  if (Amount != 0 || AmountLBP !=0 ) {
     voucher_total = Amount;
-    receiptvoucher.push(new receipt_parent_line(trans_pid, inv_type, voucher_total, customer_id, customer_name, trp_desc, salesmanid, locationid, locationcode));
+    voucher_totalLBP = AmountLBP,
+      receiptvoucher.push(new receipt_parent_line(trans_pid, inv_type, voucher_total, voucher_totalLBP, customer_id, customer_name, trp_desc, salesmanid, locationid, locationcode));
   }
   voucher_total = 0;
   return receiptvoucher;
@@ -914,7 +917,7 @@ function saveJVOnline(mainId, current_JV) {
   dialog.open();
   app.request({
     //type: 'POST', // This may cause the problem as it may be using GET!!
-    url: 'https://unopwa.app/api/setReceipt.php',
+    url: 'https://unopwa.app/api/setReceipt2.php',
     crossDomain: true,
     async: true, // async processing
     data: {
@@ -2144,7 +2147,7 @@ async function getoutstanding() {
           <td id="amount-${item.inp_id}" data-amount="${item.gtotal}"  data-label="Amount" class="numeric-cell">
             ${gtotal.toLocaleString()}
           </td>
-          <td data-label="Already Paid" class="numeric-cell">  ${alreadypaid.toLocaleString()}</td>
+          <td data-label="Already Paid" id="alreadypaid-${item.inp_id}"  class="numeric-cell">  ${alreadypaid.toLocaleString()}</td>
           <td id="remaining-${item.inp_id}" value="${item.remaining}"    >
             ${remaining.toLocaleString()}
           </td>
@@ -2214,7 +2217,7 @@ async function getoutstanding() {
         const inp_thirdparty = cb.dataset.inp_thirdparty;
         const key = cb.value;
         console.log(key);
-        // Get the corresponding amountpaid field by using thirdpartyacc to match the ID
+ 
         const amountpaidField = document.getElementById(`amountpaid-${key}`);
         let amountpaid = amountpaidField ? amountpaidField.value : ''; // Get the value of the amountpaid input
         const amountDiv = document.getElementById(`amount-${key}`);
@@ -2222,21 +2225,39 @@ async function getoutstanding() {
         const inp_id = document.getElementById(`inp_${key}`);
         const id = document.getElementById(`id_${key}`);
         const remaining = document.getElementById(`remaining-${key}`);
-        const remainingText = remaining ? remaining.textContent.trim() : null;
-        amountpaid = parseFloat(amountpaid) + parseFloat( amountpaid);
-        if (amountpaid == 0) {
-          amountpaid =   Number(remainingText.replace(/,/g, '')); 
+        let remainingText = remaining ? remaining.textContent.trim() : null;
+        const alreadypaid = document.getElementById(`alreadypaid-${key}`);
+        let alreadypaidText = alreadypaid ? alreadypaid.textContent.trim() : null;
+        let total = document.getElementById("total");
+        total = total.value;
+        amountpaid = parseFloat(amountpaid)  ;
+        if (amountpaid == 0) { 
 
-        } else  if (parseFloat(amountpaid)> parseFloat(amountValue)) {
+          alreadypaidText = alreadypaidText.replace(/,/g, '');
+          remainingText = total.replace(/,/g, '');
+          amountpaid = Number(total) + Number(alreadypaidText);
+
+
+        } else if (parseFloat(amountpaid) > parseFloat(amountValue)) {
           alert("The amountpaid you enterd is great then amount");
           return;
+        } else {
+          if (parseFloat(amountpaid) > parseFloat(total)) {
+            alert("The amountpaid you enterd is great then Totals");
+            return;
+          }
+          alreadypaidText = alreadypaidText.replace(/,/g, '');
+          total = total - amountpaid ;
+          amountpaid = Number(amountpaid) + Number(alreadypaidText);
+        
+          $$("#total").val(Math.round(total));
         }
         outstanding.push(inp_thirdparty, parseFloat(amountpaid), inp_id.value, id.value, localStorage.getItem('salesmanid'), cb.checked)
         //alert(`Account: ${thirdpartyacc}, Amount Paid: ${amountpaid},inp_id :${inp_id.value}`);
-       
+        saveoutstandingOnline(outstanding);
         
       }
-      saveoutstandingOnline(outstanding);
+      
     
     });
    

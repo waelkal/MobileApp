@@ -442,7 +442,7 @@
 
     // Sync Data
     async function UploadData() {
-      let invoice = [];
+      let invoice = []; 
       let invoiceList = await getInvoiceList();
       app.dialog.alert("Upload your offline invoices !!... ");
         if (localStorage.getItem("UpdateDataToOnlineServer") === "1") {

@@ -33,7 +33,7 @@
 
                 <option disabled selected value="nullcustomer">Select customer</option>
                 {{#each this.customerlist}}
-                <option value="{{this.customerid}}">{{this.acname}}</option>
+                <option value="{{this.customerid}}" data-currency="{{this.accurency}}">{{this.acname}} || {{this.accurency}}</option>
                 {{/each}}
               </select>
               <div class="item-content">
@@ -42,12 +42,13 @@
                 </div>
               </div>
             </a>
+
           </li>
           <li class="amount-row">
-            <label>Amount LL</label>
-            <input type="number"  id="amountlbp"/>
-            <label>Amount USD</label>
-            <input type="number" id="amountusd" />
+            <!--<label>Amount LL</label>
+            <input type="number" id="amountlbp" />-->
+            <label>Total</label>
+            <input type="number" id="total" />
           </li>
 
 
@@ -273,20 +274,40 @@
         debugger;
         var $$ = Dom7;
         const selectedCustomerId = this.$route.context.selectedCustomerId;
-        const amount = localStorage.getItem('amount');
-        const amountLBP = localStorage.getItem('amountLBP');
+        let amount = localStorage.getItem('amountusd');
+        let amountLBP = localStorage.getItem('amountLBP');
         const $page = $$(this.el || document);
        
         const $select = $page.find('#cbocustomer');
+        let finalAmount=0
         if ($select.length) {
           $select.val(selectedCustomerId).trigger('change');
+         const select = document.getElementById("cbocustomer");
+          const selectedOption = select.options[select.selectedIndex];
+          const selectedCurrency = selectedOption.getAttribute('data-currency');
+         
           $$("#amountusd").val(amount);
           $$("#amountlbp").val(amountLBP);
+
           localStorage.removeItem('amount');
           localStorage.removeItem('amountLBP');
+
+          if (selectedCurrency === '02') {
+            amountLBP = amountLBP / 89500;
+            finalAmount = Number(amount) + Number(amountLBP);
+            
+          } else {
+            amountLBP = amountLBP * 895000;
+            // If you need to add amountLBP too, parse and add it numerically
+            finalAmount = Number(amountLBP) + Number(amount);
+          }
+          
+          $$("#total").val( Math.round(finalAmount));
+         
+         
         } else {
           console.warn('#cbocustomer not found');
-        }
+       }
        
       },
       pageInit: function (page) {
@@ -296,10 +317,13 @@
 
            
           const $select = $$(page.el).find('#cbocustomer');
+        
           if (!$select.length) {
             console.warn('#cbocustomer not found in page DOM');
             return;
           }
+          alert(localStorage.getItem("amount"));
+
           const optionExists = $select.find(`option[value="${selectedCustomerId}"]`).length > 0;
           console.log('Option exists for selectedCustomerId:', optionExists);
           console.log('cbocustomer found:', $select.length, 'selectedCustomerId:', selectedCustomerId);

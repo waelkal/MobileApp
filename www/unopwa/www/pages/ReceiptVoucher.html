@@ -123,7 +123,7 @@
               <select id="cbocustomer" name="customer" >
                 <option disabled selected value="nullcustomer">Select customer</option>
                 {{#each customerlist}}
-                <option value="{{this.customerid}}">{{this.acname}}</option>
+                <option value="{{this.customerid}}" data-currency="{{this.accurency}}" >{{this.acname}} || {{this.accurency}}</option>
                 {{/each}}
               </select>
               <div class="item-content">
@@ -315,13 +315,14 @@
           return false;
         }
         const currentamount = $$("#Amount").val();
-        if ($$('#Amount').val() == '') {
+        const currentamountLBP = $$("#AmountLBP").val();
+        if ($$('#Amount').val() == '' || $$('#AmountLBP').val== '' ) {
           app.dialog.alert("Please fill Amount field!!");
           return false;
         }
 
         // Create temp JV
-        var current_JV = refreshVoucherTotal(this.$route.context.invtype, currentamount);
+        var current_JV = refreshVoucherTotal(this.$route.context.invtype, currentamount, currentamountLBP);
 
         var mainKey = current_JV[0]["inp_id"];
 
@@ -378,9 +379,10 @@
         const currentamount = $$("#Amount").val();
         const currentamountLBP = $$("#AmountLBP").val();
         const select = document.getElementById("cbocustomer");
-        const selectedOption = select.options[select.selectedIndex];
-        localStorage.setItem('amount', currentamount);
-        localStorage.setItem('amountLBP', currentamountLBP);
+          
+        localStorage.setItem('amountusd', currentamount);
+         localStorage.setItem('amountLBP', currentamountLBP);
+          
         const customerId = select.value;
 
 
