@@ -23,7 +23,7 @@ if ($dblink->connect_errno) {
   echo "Failed to connect";
   exit();
 }
- 
+   
 try {
   $strSQL = "Insert into receiptvouchers (Trans_id,Amount,AmountLBP,customer_id,CustomerName,Salesman_id,Location_id,Jv_type,trp_desc,inp_vdate)  
            Values ('" . $JV['inp_id'] . "','" . $JV['voucher_total'] . "','" . $JV['voucher_totalLBP'] . "','"  . $JV['client_id'] . "','" . $JV['client_name'] . "','" . $JV['salesmanid'] . "','" . $JV['locationid'] . "','" . $JV['inv_type'] . "','" . $JV['description'] . "','" . $JV['inv_edate'] . "')";
